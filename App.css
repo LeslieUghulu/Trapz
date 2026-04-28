@@ -1,0 +1,155 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Menu, X } from 'lucide-react';
+
+const links = [
+  { label: 'Services', href: '#services' },
+  { label: 'Submit Music', href: '#submit-music' },
+  { label: 'Work', href: '#work' },
+  { label: 'About', href: '#about' },
+];
+
+export function Navbar({ onBookCall }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  return (
+    <motion.nav
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center px-6 pt-4"
+    >
+      <div
+        className="w-full max-w-6xl flex items-center justify-between rounded-2xl px-5 py-3 transition-all duration-500"
+        style={{
+          background: scrolled ? 'rgba(10,9,15,0.85)' : 'rgba(10,9,15,0.4)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.07)',
+        }}
+      >
+        {/* Logo */}
+        <a href="/" style={{ textDecoration: 'none' }}>
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #FA93FA, #C967E8, #983AD6)' }}
+            >
+              <span style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '14px', color: 'white' }}>V</span>
+            </div>
+            <span style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '-0.01em' }}>
+              Visioncraft
+            </span>
+          </div>
+        </a>
+
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-8">
+          {links.map(link => (
+            <a
+              key={link.label}
+              href={link.href}
+              style={{
+                fontFamily: 'DM Sans',
+                fontSize: '14px',
+                color: 'rgba(255,255,255,0.55)',
+                textDecoration: 'none',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={e => e.target.style.color = 'white'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.55)'}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="hidden md:flex items-center gap-3">
+          <div
+            className="rounded-full p-px"
+            style={{ background: 'linear-gradient(135deg, rgba(250,147,250,0.4), rgba(152,58,214,0.4))' }}
+          >
+            <button
+              onClick={onBookCall}
+              className="rounded-full px-5 py-2 text-sm cursor-pointer transition-all duration-200 hover:opacity-90"
+              style={{
+                fontFamily: 'DM Sans',
+                fontWeight: 500,
+                background: '#010101',
+                color: 'white',
+                border: 'none',
+                fontSize: '13px',
+              }}
+            >
+              Book a Call →
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          className="md:hidden"
+          onClick={() => setOpen(o => !o)}
+          style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="absolute top-full left-6 right-6 mt-2 rounded-2xl p-5"
+            style={{
+              background: 'rgba(10,9,15,0.95)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            {links.map(link => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="block py-3"
+                style={{
+                  fontFamily: 'DM Sans',
+                  color: 'rgba(255,255,255,0.7)',
+                  textDecoration: 'none',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  fontSize: '15px',
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+            <button
+              onClick={() => { onBookCall(); setOpen(false); }}
+              className="w-full mt-4 py-3 rounded-full text-sm font-medium cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, #FA93FA, #C967E8, #983AD6)',
+                color: 'white',
+                border: 'none',
+                fontFamily: 'DM Sans',
+                fontSize: '14px',
+              }}
+            >
+              Book a Call
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+}

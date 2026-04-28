@@ -1,0 +1,242 @@
+import { motion, AnimatePresence } from 'motion/react';
+import { X, Calendar, Clock, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+
+export function BookingModal({ open, onClose }) {
+  const [step, setStep] = useState(1);
+  const [selected, setSelected] = useState({ day: null, time: null });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+
+  const days = ['Mon Jun 2', 'Tue Jun 3', 'Wed Jun 4', 'Thu Jun 5', 'Fri Jun 6'];
+  const times = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
+
+  const handleBook = (e) => {
+    e.preventDefault();
+    setDone(true);
+  };
+
+  const handleClose = () => {
+    onClose();
+    setTimeout(() => { setStep(1); setSelected({ day: null, time: null }); setDone(false); setName(''); setEmail(''); }, 300);
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleClose}
+            className="fixed inset-0 z-[100]"
+            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed top-1/2 left-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-3xl p-8"
+            style={{
+              background: 'rgba(18,16,26,0.98)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(40px)',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,103,232,0.1)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: '22px', color: 'white', marginBottom: '4px' }}>
+                  Book a 15-min Call
+                </h2>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'DM Sans', fontSize: '14px' }}>
+                  Free intro call — no commitment.
+                </p>
+              </div>
+              <button
+                onClick={handleClose}
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {done ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-8"
+              >
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                  style={{ background: 'linear-gradient(135deg, #FA93FA, #983AD6)' }}
+                >
+                  <Calendar size={28} className="text-white" />
+                </div>
+                <h3 style={{ fontFamily: 'Syne', fontWeight: 700, fontSize: '22px', color: 'white', marginBottom: '8px' }}>
+                  You're booked!
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'DM Sans', fontSize: '14px', lineHeight: 1.6 }}>
+                  {selected.day} at {selected.time}.<br />
+                  Check your email for the meeting link.
+                </p>
+              </motion.div>
+            ) : (
+              <>
+                {/* Step 1: Pick day/time */}
+                {step === 1 && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Calendar size={14} style={{ color: '#C967E8' }} />
+                      <span style={{ fontFamily: 'DM Sans', fontSize: '13px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Select a day
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                      {days.map(day => (
+                        <button
+                          key={day}
+                          onClick={() => setSelected(s => ({ ...s, day }))}
+                          className="rounded-xl py-2.5 text-sm transition-all cursor-pointer"
+                          style={{
+                            fontFamily: 'DM Sans',
+                            fontSize: '13px',
+                            border: selected.day === day ? '1px solid rgba(201,103,232,0.6)' : '1px solid rgba(255,255,255,0.08)',
+                            background: selected.day === day ? 'rgba(201,103,232,0.12)' : 'rgba(255,255,255,0.03)',
+                            color: selected.day === day ? '#C967E8' : 'rgba(255,255,255,0.6)',
+                          }}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 mb-4">
+                      <Clock size={14} style={{ color: '#C967E8' }} />
+                      <span style={{ fontFamily: 'DM Sans', fontSize: '13px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Select a time (EST)
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                      {times.map(time => (
+                        <button
+                          key={time}
+                          onClick={() => setSelected(s => ({ ...s, time }))}
+                          className="rounded-xl py-2.5 text-sm transition-all cursor-pointer"
+                          style={{
+                            fontFamily: 'DM Sans',
+                            fontSize: '13px',
+                            border: selected.time === time ? '1px solid rgba(201,103,232,0.6)' : '1px solid rgba(255,255,255,0.08)',
+                            background: selected.time === time ? 'rgba(201,103,232,0.12)' : 'rgba(255,255,255,0.03)',
+                            color: selected.time === time ? '#C967E8' : 'rgba(255,255,255,0.6)',
+                          }}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => selected.day && selected.time && setStep(2)}
+                      disabled={!selected.day || !selected.time}
+                      className="w-full py-3.5 rounded-full font-medium cursor-pointer transition-all disabled:opacity-30"
+                      style={{
+                        fontFamily: 'DM Sans',
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, #FA93FA, #C967E8, #983AD6)',
+                        color: 'white',
+                        border: 'none',
+                        fontSize: '14px',
+                      }}
+                    >
+                      Continue →
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Step 2: Contact info */}
+                {step === 2 && (
+                  <motion.form
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    onSubmit={handleBook}
+                  >
+                    <div
+                      className="rounded-xl px-4 py-3 mb-6 flex items-center gap-3"
+                      style={{ background: 'rgba(201,103,232,0.08)', border: '1px solid rgba(201,103,232,0.15)' }}
+                    >
+                      <Calendar size={14} style={{ color: '#C967E8' }} />
+                      <span style={{ fontFamily: 'DM Sans', fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
+                        {selected.day} at {selected.time}
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <label style={{ fontFamily: 'DM Sans', fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                          Your Name
+                        </label>
+                        <input
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          required
+                          placeholder="Name"
+                          className="w-full rounded-xl px-4 py-3 text-sm outline-none text-white placeholder-white/25"
+                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontFamily: 'DM Sans' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontFamily: 'DM Sans', fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          required
+                          placeholder="you@example.com"
+                          className="w-full rounded-xl px-4 py-3 text-sm outline-none text-white placeholder-white/25"
+                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontFamily: 'DM Sans' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="flex-1 py-3.5 rounded-full cursor-pointer transition-opacity hover:opacity-70"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans', fontSize: '14px' }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-[2] py-3.5 rounded-full font-semibold cursor-pointer transition-all hover:opacity-90"
+                        style={{
+                          background: 'linear-gradient(135deg, #FA93FA, #C967E8, #983AD6)',
+                          color: 'white',
+                          border: 'none',
+                          fontFamily: 'DM Sans',
+                          fontSize: '14px',
+                        }}
+                      >
+                        Confirm Booking
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+              </>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}

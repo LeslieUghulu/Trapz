@@ -1,0 +1,27 @@
+import { useState } from 'react';
+import { Navbar } from './components/Navbar';
+import { Hero } from './components/Hero';
+import { LogoCloud } from './components/LogoCloud';
+import { Services } from './components/Services';
+import { MusicSubmission } from './components/MusicSubmission';
+import { BookingModal } from './components/BookingModal';
+import { Footer } from './components/Footer';
+import './index.css';
+
+export default function App() {
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  return (
+    <div style={{ background: '#010101', minHeight: '100vh', color: 'white' }}>
+      <Navbar onBookCall={() => setBookingOpen(true)} />
+      <Hero onBookCall={() => setBookingOpen(true)} />
+      <LogoCloud />
+      <div id="services">
+        <Services />
+      </div>
+      <MusicSubmission />
+      <Footer />
+      <BookingModal open={bookingOpen} onClose={() => setBookingOpen(false)} />
+    </div>
+  );
+}
